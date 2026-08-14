@@ -1,0 +1,70 @@
+import { HorizontalBox, Button, VerticalBox, ScrollView, GridBox } from "std-widgets.slint";
+import { MediaGroupData } from "../types.slint";
+
+export component AlbumsPage inherits Rectangle {
+    background: #fffdee;
+    in property <[MediaGroupData]> albums;
+
+    callback openAlbum(int);
+
+    VerticalBox {
+        spacing: 20px;
+        padding: 20px;
+
+        Text {
+            text: "Albums";
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        ScrollView {
+            GridBox {
+                spacing: 20px;
+                for album[i] in albums : VerticalBox {
+                    row: Math.floor(i / 4);
+                    col: Math.mod(i, 4);
+
+                    width: 180px;
+                    spacing: 8px;
+
+                    TouchArea {
+                        clicked => { root.openAlbum(i)};
+
+                        VerticalBox {
+                            spacing: 8px;
+                            
+                            Rectangle {
+                                background: #e0e0e0;
+                                height: 180px;
+                                width: 180px;
+                                border-radius: 8px;
+                                clip: true;
+
+                                Image {
+                                    source: album.cover;
+                                    width: 100%;
+                                    height: 100%;
+                                    image-fit: cover;
+                                }
+                            }
+                                
+                            VerticalBox {
+                                spacing: 2px;
+                                Text { 
+                                    text: album.name; 
+                                    font-weight: 700;
+                                    overflow: elide;
+                                }
+                                Text { 
+                                    text: album.track-count + " songs"; 
+                                    color: #666; 
+                                    font-size: 12px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

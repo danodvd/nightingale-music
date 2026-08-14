@@ -1,0 +1,107 @@
+import { TrackData, MediaGroupData } from "../types.slint";
+import { ScrollView, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { TrackModel } from "../components/TrackModel.slint";
+
+export component SearchPage inherits Rectangle {
+    background: #fffdee;
+
+    in property <[TrackData]> search-tracks;
+    in property <[MediaGroupData]> search-albums;
+    in property <[MediaGroupData]> search-artists;
+
+    callback playTrack(int);
+    callback toggleFavorites(int);
+    
+    ScrollView {
+        width: 100%;
+        height: 100%;
+
+        VerticalBox {
+            alignment: start;
+            spacing: 20px;
+            padding: 20px;
+
+            // Songs
+            if search-tracks.length > 0 : Text {
+                font-size: 24px;
+                font-weight: 800;
+                text: "Songs";
+            }
+            if search-tracks.length > 0 : ScrollView {
+                height: track-box.preferred-height;
+                track-box := HorizontalBox {
+                    spacing: 15px;
+                    for track in search-tracks: VerticalBox {
+                        TrackModel {
+                            track: track;
+                            is_favorite: track.is_favorite;
+                            toggleFavorites(id) => { root.toggleFavorites(id); }
+                            playTrack(id) => { root.playTrack(id); }
+                        }
+                    }
+                }
+            }
+
+            // Albums
+            if search-albums.length > 0 : Text {
+                font-size: 24px;
+                font-weight: 800;
+                text: "Albums";
+            }
+            if search-albums.length > 0 : ScrollView {
+                height: album-box.preferred-height;
+                album-box := HorizontalBox {
+                    spacing: 15px;
+                    for album in search-albums : VerticalBox {
+                        width: 150px;
+                        Rectangle {
+                            width: 150px; 
+                            height: 150px;
+                            border-radius: 12px;
+                            clip: true;
+                            Image {
+                                source: album.cover;
+                                image-fit: cover;
+                            }
+                        }
+                        Text { text: album.name; overflow: elide; }
+                        Text { text: album.track-count + (album.track-count > 0 ? " songs" : " song"); overflow: elide; color: #555555;}
+                    }
+                }
+            }
+
+            // Artists
+            if search-artists.length > 0 : Text {
+                font-size: 24px;
+                font-weight: 800;
+                text: "Artists";
+            }
+            if search-artists.length > 0 : ScrollView {
+                height: artists-box.preferred-height;
+                artists-box := HorizontalBox {
+                    spacing: 15px;
+                    for artist in search-artists : VerticalBox {
+                        width: 150px;
+                        Rectangle {
+                            background: #414141;
+                            width: 150px;
+                            height: 150px;
+                            border-radius: 75px;
+                            clip: true;
+                            Image {
+                                source: artist.cover;
+                                image-fit: cover;
+                            }
+                        }
+                        Text {
+                            text: artist.name;
+                            horizontal-alignment: center;
+                            overflow: elide;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

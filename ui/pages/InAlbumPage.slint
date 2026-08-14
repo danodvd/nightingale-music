@@ -1,0 +1,75 @@
+import { TrackData } from "../types.slint";
+import { VerticalBox, HorizontalBox, ScrollView } from "std-widgets.slint";
+
+export component InAlbumPage inherits Rectangle {
+    // Matching the background color of your other pages
+    background: #fffdee;
+    
+    in property <[TrackData]> tracks;
+    in property <string> albumName;
+    callback playTrack(int);
+
+    // 1. Wrap the entire page in a VerticalBox to prevent overlap
+    VerticalBox {
+        padding: 20px;
+        spacing: 20px;
+        alignment: start;
+
+        // Album Title Header
+        Text {
+            text: root.albumName;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        
+        // 2. Add a ScrollView so the track list doesn't overflow the window
+        ScrollView {
+            width: 100%;
+            height: 100%;
+
+            VerticalBox {
+                spacing: 15px;
+                alignment: start;
+                
+                for track in root.tracks : TouchArea {
+                    width: 100%;
+                    clicked => { root.playTrack(track.id); }
+                    
+                    // 3. Keep the layout intact inside the TouchArea
+                    HorizontalBox {
+                        spacing: 10px;
+                        
+                        Rectangle {
+                            width: 45px;
+                            height: 45px;
+                            background: #414141; // Using your original dark background
+                            border-radius: 4px;
+                            clip: true;
+                            
+                            Image {
+                                source: track.cover;
+                                image-fit: cover;
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                        
+                        VerticalBox {
+                            alignment: center;
+                            Text {
+                                text: track.title;
+                                font-size: 14px;
+                                font-weight: 700;
+                            }
+                            Text {
+                                text: track.artist;
+                                font-size: 14px;
+                                color: #555555; // Added contrast color matching your TrackModel
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,113 @@
+import { VerticalBox, HorizontalBox, Button, ScrollView } from "std-widgets.slint";
+import {TrackData, MediaGroupData } from "../types.slint";
+import { TrackModel } from "../components/TrackModel.slint";
+export component HomePage inherits Rectangle {
+    background: #fffdee;
+
+    in property <[TrackData]> recent-tracks;
+    in property <[MediaGroupData]> albums;
+    in property <[TrackData]> favorites;
+
+    callback importClicked;
+    callback playTrack(int);
+    callback toggleFavorites(int);
+
+    ScrollView {
+        width: 100%;
+        height: 100%;
+        
+        VerticalBox {
+            alignment: start;
+            spacing: 20px;
+            HorizontalBox {
+                alignment: space-between;
+                Text {
+                    text: "Desktop Library";
+                    font-size: 24px;
+                    font-weight: 700;
+                }
+
+                HorizontalBox {
+                    alignment: end;
+                    spacing: 10px;
+                    Button { text: "Import File";}
+                    Button { text: "Import Folder"; primary: true; clicked => { root.importClicked(); }}
+                }
+            }
+
+            Text {
+                font-size: 25px;
+                font-weight: 800;
+                
+                text: "Recently Added";
+            }
+
+            ScrollView {
+                height: recent-box.preferred-height;
+                
+                recent-box := HorizontalBox {
+                    spacing: 5px;
+                    for track in recent-tracks: 
+                        TrackModel {
+                            track: track;
+                            is_favorite: track.is_favorite;
+                            playTrack(id) => { playTrack(track.id) };
+                            toggleFavorites(id) => { toggleFavorites(track.id) };
+                        }
+                }
+            }
+
+            Text {
+                text: "Albums";
+                font-size: 25px;
+                font-weight: 800;
+            }
+            ScrollView {
+                height: albums-box.preferred-height;
+
+                albums-box := HorizontalBox {
+                    spacing: 5px;
+                    for album in albums: VerticalBox {
+                        width: 150px;
+
+                        Rectangle {
+                            background: #414141;
+                            width: 150px;
+                            height: 150px;
+                            border-radius: 12px;
+                            clip: true;
+
+                            Image {
+                                source: album.cover;
+                                image-fit: cover;
+                            }
+                        }
+                        Text {text: album.name; overflow: elide; }
+                        Text {text: album.track-count + (album.track-count > 1 ? " songs" : " song"); color: #555555; overflow: elide; }
+                    }   
+                }
+            }
+            Text {
+                text: "Favorites";
+                font-size: 25px;
+                font-weight: 800;
+            }
+
+            ScrollView {
+                height: favorites-box.preferred-height;
+
+                favorites-box := HorizontalBox {
+                    spacing: 5px;
+                    for favorite in favorites: VerticalBox {
+                        TrackModel {
+                            track: favorite;
+                            is_favorite: favorite.is_favorite;
+                            playTrack(id) => { playTrack(favorite.id) };
+                            toggleFavorites(id) => { toggleFavorites(favorite.id) };
+                        }
+                    }   
+                }
+            }
+        }
+    }
+}

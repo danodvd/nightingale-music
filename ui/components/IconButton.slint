@@ -1,0 +1,26 @@
+export component IconButton inherits Rectangle {
+    in property <string> icon;
+    in property <brush> background-color: #000;
+    in property <brush> pressed-color: #aaa;
+    in property <brush> hover-color: #ddd;
+    in property <length> fontSize;
+    callback clicked();
+
+    touch := TouchArea {
+        width: 100%;
+        height: 100%;
+        clicked => {root.clicked();}
+    }
+
+    Text {
+        width: 100%;
+        height: 100%;
+        text: root.icon;
+        font-family: "Iosevka Nerd Font Propo";
+        font-size: fontSize;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+
+        color: touch.pressed ? pressed-color : (touch.has-hover ? hover-color : background-color);
+    }
+}

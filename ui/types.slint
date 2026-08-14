@@ -1,0 +1,29 @@
+export enum Page {
+    Home,
+    Artists,
+    Albums,
+    Library,
+    Search,
+    InAlbumPage,
+    InArtistPage
+}
+
+export struct TrackData {
+    id: int,
+    title: string,
+    artist: string,
+    cover: image,
+    is_favorite: bool
+}
+
+export struct MediaGroupData {
+    name: string,
+    track-count: int,
+    cover: image
+}
+
+export struct Playlist {
+    name: string,
+    cover: image,
+    tracks: [TrackData]
+}

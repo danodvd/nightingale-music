@@ -1,0 +1,119 @@
+import { TrackData, Playlist } from "../types.slint";
+import { VerticalBox, ScrollView, GridBox, HorizontalBox } from "std-widgets.slint";
+import { TrackModel } from "../components/TrackModel.slint";
+
+export component LibraryPage inherits Rectangle {
+    in property <[TrackData]> tracks;
+    in property <[Playlist]> playlists;
+    private property <int> section; // 0 for "My songs", 1 for "Playlists"
+    callback playTrack(int);
+    callback toggleFavorites(int);
+    callback addPlaylist();
+
+    VerticalBox {
+        HorizontalBox {
+            alignment: start;
+            spacing: 15px;
+
+            TouchArea {
+                clicked => { section = 0; }
+                Text {
+                    text: "My songs";
+                    font-size: 24px;
+                    font-weight: 800;
+                    color: section == 0 ? #000000 : #afafaf;
+                }
+            }
+            TouchArea {
+                clicked => { section = 1; }
+                Text {
+                    text: "Playlists";
+                    font-size: 24px;
+                    font-weight: 800;
+                    color: section == 1 ? #000000 : #afafaf;
+                }
+            }
+        }
+
+        VerticalLayout {
+            if( section == 0) :
+                ScrollView {
+                    GridBox {
+                        spacing: 20px;
+                        for track[i] in tracks : VerticalBox {
+                            row: Math.floor(i / 4);
+                            col: Math.mod(i, 4);
+
+                            width: 180px;
+                            spacing: 8px;
+
+                            TrackModel {
+                                track: track;
+                                is_favorite: track.is_favorite;
+                                toggleFavorites(id) => { root.toggleFavorites(id); }
+                                playTrack(id) => { root.playTrack(id); }
+                            }
+                        }
+                    }
+                }
+            if(section == 1) : HorizontalBox {
+                vertical-stretch: 1;
+
+                ScrollView {
+                    VerticalBox {
+                        alignment: start;
+                        spacing: 20px;
+
+                        for playlist in playlists : HorizontalBox {
+                            spacing: 20px;
+                            Rectangle {
+                                width: 180px;
+                                height: 180px;
+                                border-radius: 15px;
+                                background: #414141;
+
+                                Image { 
+                                    source: playlist.cover;
+                                    image-fit: cover;
+                                }
+                            }
+                            VerticalBox {
+                                spacing: 15px;
+
+                                Text {
+                                    text: playlist.name;
+                                    font-size: 24px;
+                                    font-weight: 700;
+                                }
+                                Text {
+                                    text: playlist.tracks.length;
+                                    font-size: 24px;
+                                    color: #414141;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                VerticalBox {
+                    alignment: start;
+                    Rectangle {
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 15px;
+                        background: #717171;
+                        Text {
+                            text: "+";
+                            font-size: 20px;
+                            font-weight: 700;
+                        }
+                        TouchArea {
+                            clicked => { root.addPlaylist(); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

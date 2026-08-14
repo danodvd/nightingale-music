@@ -1,0 +1,67 @@
+import { TrackData } from "../types.slint";
+import { VerticalBox, HorizontalBox, ScrollView } from "std-widgets.slint";
+
+export component InArtistPage inherits Rectangle {
+    // Matching the background color of your other pages
+    background: #fffdee;
+    
+    in property <[TrackData]> tracks;
+    in property <string> artistName;
+    callback playTrack(int);
+
+    VerticalBox {
+        padding: 20px;
+        spacing: 20px;
+        alignment: start;
+
+        // Album Title Header
+        Text {
+            text: root.artistName;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        
+        ScrollView {
+            width: 100%;
+            height: 100%;
+
+            VerticalBox {
+                spacing: 15px;
+                alignment: start;
+                
+                for track in root.tracks : TouchArea {
+                    width: 100%;
+                    clicked => { root.playTrack(track.id); }
+                    
+                    HorizontalBox {
+                        spacing: 10px;
+                        
+                        Rectangle {
+                            width: 45px;
+                            height: 45px;
+                            background: #414141;
+                            border-radius: 4px;
+                            clip: true;
+                            
+                            Image {
+                                source: track.cover;
+                                image-fit: cover;
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                        
+                        VerticalBox {
+                            alignment: center;
+                            Text {
+                                text: track.title;
+                                font-size: 14px;
+                                font-weight: 700;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

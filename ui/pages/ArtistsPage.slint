@@ -1,0 +1,73 @@
+import { HorizontalBox, Button, VerticalBox, ScrollView, GridBox } from "std-widgets.slint";
+import { MediaGroupData } from "../types.slint";
+
+export component ArtistsPage inherits Rectangle {
+    background: #fffdee;
+    in property <[MediaGroupData]> artists;
+
+    callback openArtist(int);
+
+    VerticalBox {
+        spacing: 20px;
+        padding: 20px;
+
+        Text {
+            text: "Artists";
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        ScrollView {
+            GridBox {
+                spacing: 30px;
+                for artist[i] in artists : VerticalBox {
+                    row: Math.floor(i / 4);
+                    col: Math.mod(i, 4);
+
+                    width: 160px;
+                    spacing: 10px;
+
+                    TouchArea {
+                        clicked => { root.openArtist(i) };
+
+                        VerticalBox {
+                            spacing: 8px;
+
+                            Rectangle {
+                                background: #e0e0e0;
+                                height: 160px;
+                                width: 160px;
+                                border-radius: 80px;
+                                clip: true; 
+
+                                Image {
+                                    source: artist.cover;
+                                    width: 100%;
+                                    height: 100%;
+                                    image-fit: cover;
+                                }
+                            }
+                            
+                            VerticalBox {
+                                spacing: 2px;
+                                Text { 
+                                    text: artist.name; 
+                                    horizontal-alignment: center; 
+                                    font-weight: 700;
+                                    overflow: elide;
+                                }
+                                Text { 
+                                    text: artist.track-count + " songs"; 
+                                    horizontal-alignment: center; 
+                                    color: #666; 
+                                    font-size: 12px;
+                                    overflow: elide;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

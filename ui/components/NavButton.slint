@@ -1,0 +1,17 @@
+import { Button } from "std-widgets.slint";
+export component  NavButton inherits Rectangle {
+    in property <string> text;
+    callback clicked;
+
+    height: 44px;
+
+    Button {
+        width: parent.width;
+        height: 36px;
+        text: root.text;
+
+        clicked => {
+            root.clicked();
+        }
+    }
+}

@@ -1,0 +1,58 @@
+import { VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { TrackData } from "../types.slint";
+
+export component TrackModel {
+    callback playTrack(int);
+    callback toggleFavorites(int);
+    
+
+    in property <TrackData> track;
+    in property <bool> is_favorite;
+    
+    container-area := TouchArea {
+        clicked => { root.playTrack(track.id); }
+        VerticalBox {
+            width: 150px;
+            alignment: stretch;
+            Rectangle {
+                background: #414141;
+                width: 150px;
+                height: 150px;
+                border-radius: 12px;
+                clip: true;
+
+                Image {
+                    source: track.cover;
+                    image-fit: cover;
+                }
+                if container-area.has-hover : HorizontalBox{
+                    alignment: end;
+                    VerticalBox {
+                        alignment: start;
+                        Rectangle {
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 3px;
+                            background: #ffffff;
+                            TouchArea {
+                                clicked => {root.toggleFavorites(track.id);}
+                                Text {
+                                    horizontal-alignment: center;
+                                    vertical-alignment: center;
+                                    text: is_favorite ? "" : "";
+                                    width: 100%;
+                                    font-size: 15px;
+                                    color: #000000;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Text {
+                text: track.title; overflow: elide;
+            }
+            Text {text: track.artist; color: #555555; overflow: elide;}
+        }   
+    }
+}

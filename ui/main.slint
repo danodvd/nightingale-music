@@ -1,0 +1,298 @@
+import { Button, VerticalBox, ListView, HorizontalBox, TextEdit, LineEdit } from "std-widgets.slint";
+import { Page, TrackData, MediaGroupData, Playlist} from "types.slint";
+import { NavButton } from "components/NavButton.slint";
+import { HomePage } from "pages/HomePage.slint";
+import { ArtistsPage } from "pages/ArtistsPage.slint";
+import { AlbumsPage } from "pages/AlbumsPage.slint";
+import { IconButton } from "components/IconButton.slint";
+import { SearchPage } from "pages/SearchPage.slint";
+import { LibraryPage } from "pages/LibraryPage.slint";
+import { InAlbumPage } from "pages/InAlbumPage.slint";
+import { InArtistPage } from "pages/inArtistPage.slint";
+export component MainWindow inherits Window {
+    width: 800px;
+    height: 600px;
+    title: "Nightingale";
+    background: #fffee7;
+
+    in property <[TrackData]> recently-added;
+    in property <[TrackData]> favorites;
+    in property <[MediaGroupData]> artist-list;
+    in property <[MediaGroupData]> album-list;
+    in property <[TrackData]> track-list;
+    in property <[Playlist]> playlists;
+
+    property <Page> active-page: Page.Home;
+
+    property <[{
+        text: string,
+        page: Page,
+
+    }]> navigation: [
+        {text: "Home", page: Page.Home},
+        {text: "Artists", page: Page.Artists},
+        {text: "Albums", page: Page.Albums},
+        {text: "Library", page: Page.Library}
+    ];
+
+    callback playTrack(int);
+    callback toggleFavorites(int);
+    callback togglePlay();
+    callback next();
+    callback prev();
+    callback importFiles();
+
+    in property <bool> isPlaying: false;
+    in property <string> currTrackTitle: "No track playing";
+    in property <string> currArtistName: "Unknown Artist";
+    in property <image> currTrackCover;
+    in property <percent> currPos: 0%;
+
+    // SearchPage properties
+    in property <[TrackData]> searchTracks;
+    in property <[MediaGroupData]> searchAlbums;
+    in property <[MediaGroupData]> searchArtists;
+    callback searchQuery(string);
+
+    // Album properties
+    in property <[TrackData]> in-album-tracks;
+    in property <string> in-album-name;
+    callback openAlbum(int);
+
+    // Artist properties
+    in property <[TrackData]> in-artist-tracks;
+    in property <string> in-artist-name;
+    callback openArtist(int);
+
+    callback addPlaylist();
+
+    VerticalLayout {
+        HorizontalLayout { 
+            vertical-stretch: 1;
+            width: 100%;
+            padding: 10px;
+
+            Rectangle {
+                width: 20%;
+
+                border-radius: 15px;
+                border-width: 1px;
+                border-color: #ffed4f69;
+
+                background: #ffffc7;
+                VerticalLayout {
+                    alignment: start;
+
+                    width: 100%;
+                    spacing: 20px;
+                    padding: 15px;
+
+                    Text { 
+                        text: "Nightingale"; 
+                        font-size: 18px;
+                        font-weight: 800;
+                    }
+
+                    LineEdit {
+                        input-type: search;
+                        placeholder-text: "Search";
+                        font-family: "Iosevka Nerd Font Propo";
+                        font-size: 14px;
+                        height: 35px;
+
+                        edited(text) => {
+                            root.searchQuery(text);
+                            if(text != "") {
+                                root.active-page = Page.Search;
+                            }
+                            else {
+                                root.active-page = Page.Home;
+                            }
+                        }
+                    }
+
+                    VerticalBox {
+                        spacing: 8px;
+                        alignment: start;
+
+                        for nav-item in navigation : NavButton {
+                            text: nav-item.text;
+
+                            clicked => {
+                                root.active-page = nav-item.page;
+                            }
+                        }
+                    }
+                }
+            }
+            Rectangle {
+                width: 80%;
+                min-height: 0px;
+                clip: true;
+
+                HomePage {
+                    width: 100%;
+                    height: 100%;
+                    recent-tracks: root.recently-added;
+                    favorites: root.favorites;
+                    albums: root.album-list;
+                    visible: root.active-page == Page.Home;
+                    importClicked => { root.importFiles(); }
+                    playTrack(id) => { root.playTrack(id); }
+                    toggleFavorites(id) => { root.toggleFavorites(id); }
+                }
+                ArtistsPage {
+                    visible: root.active-page == Page.Artists;
+                    artists: root.artist-list;
+                    openArtist(id) => {
+                        root.active-page = Page.InArtistPage;
+                        root.openArtist(id);
+                    }
+                }
+                AlbumsPage {
+                    visible: root.active-page == Page.Albums;
+                    albums: root.album-list;
+                    openAlbum(id) => { 
+                        root.active-page = Page.InAlbumPage;
+                        root.openAlbum(id);
+                    };
+                }
+                SearchPage {
+                    visible: root.active-page == Page.Search;
+                    search-tracks: root.searchTracks;
+                    search-albums: root.searchAlbums;
+                    search-artists: root.searchArtists;
+                    playTrack(id) => { root.playTrack(id);
+                    }
+                    toggleFavorites(id) => { root.toggleFavorites(id); }
+                }
+                LibraryPage {
+                    visible: root.active-page == Page.Library;
+                    tracks: root.track-list;
+                    playlists: root.playlists;
+                    playTrack(id) => { root.playTrack(id);
+                    }
+                    toggleFavorites(id) => { root.toggleFavorites(id); }
+                    addPlaylist => { root.addPlaylist(); }
+                }
+                InAlbumPage {
+                    visible: root.active-page == Page.InAlbumPage;
+                    tracks: root.in-album-tracks;
+                    albumName: root.in-album-name;
+                    playTrack(id) => { root.playTrack(id); }
+                }
+                InArtistPage {
+                    visible: root.active-page == Page.InArtistPage;
+                    tracks: root.in-artist-tracks;
+                    artistName: root.in-artist-name;
+                    playTrack(id) => { root.playTrack(id); }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 75px; // Slightly taller to fit track info and the progress bar
+            background: #ffffc7;
+            border-width: 1px;
+            border-color: #d1d0b0; 
+
+            VerticalLayout {
+                // 1. PROGRESS BAR AT THE TOP
+                Rectangle {
+                    height: 4px; // Thin progress bar
+                    background: #d1d0b0; // Background track
+                    
+                    // The actual progress indicator
+                    Rectangle {
+                        x: 0;
+                        width: root.currPos; 
+                        height: 100%;
+                        background: #ffed4f69; 
+                    }
+                }
+
+                // 2. BOTTOM CONTROLS (Track Info, Playback, Volume)
+                HorizontalLayout {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                    alignment: space-between;
+                    vertical-stretch: 1;
+
+                    // LEFT: Track Info
+                    HorizontalLayout {
+                        width: 30%;
+                        alignment: start;
+                        spacing: 12px;
+                        padding-top: 8px;
+                        padding-bottom: 8px;
+
+                        // Placeholder for Album Cover
+                        Rectangle {
+                            width: 45px;
+                            height: 45px;
+                            background: #414141;
+                            border-radius: 4px;
+                            clip: true;
+
+                            Image {
+                                source: currTrackCover;
+                                image-fit: cover;
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                        
+                        VerticalLayout {
+                            alignment: center;
+                            Text {
+                                text: root.currTrackTitle;
+                                font-weight: 700;
+                                font-size: 14px;
+                                overflow: elide;
+                            }
+                            Text {
+                                text: root.currArtistName;
+                                color: #666;
+                                font-size: 12px;
+                                overflow: elide;
+                            }
+                        }
+                    }
+
+                    // CENTER: Playback Controls
+                    HorizontalLayout {
+                        alignment: center;
+                        spacing: 20px;
+                        // TODO: Replace with actual icons/polygons
+                        IconButton {
+                            icon: "󰒮"; 
+                            clicked => { root.prev(); }
+
+                            fontSize: 32px;
+                        }
+                        IconButton { 
+                            icon: root.isPlaying ? "" : "";
+                            clicked => { root.togglePlay(); }
+                            
+                            width: 100%;
+                            fontSize: 32px;
+                        }
+                        IconButton {
+                            icon: "󰒭"; 
+                            clicked => { root.next(); }
+
+                            fontSize: 32px;
+                        }
+                    }
+
+                    // RIGHT: Extra controls (e.g., volume) to balance the UI
+                    HorizontalLayout {
+                        width: 30%;
+                        alignment: end;
+                        // TODO: Add volume sliders or queue buttons here later
+                    }
+                }
+            }
+        }
+    }
+}
